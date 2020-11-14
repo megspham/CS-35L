@@ -1,0 +1,149 @@
+Megan Pham
+505-313-300
+CS 35L Lab 5
+
+Homework 1: Learning to use Emacs
+
+
+wget https://web.cs.ucla.edu/classes/fall20/cs35L/assign/assign1.html
+cp assign1.html exer1.html
+cp assign1.html exer2.html
+cp assign1.html exer3.html
+
+
+
+Exercise 1.1: Moving around in Emacs
+
+1. emacs exer1.html
+2. C-s HTML
+3. C-s scavenger
+4. C-s self-referential
+5. C-s arrow
+6. C-e (move to the end of the current line)
+7. C-a (move to the beginning of the current line)
+8. yes C-s, C-a, C-e
+9. no
+10. C-x C-c
+
+
+
+Exercise 1.2: Deleting text in Emacs
+
+1. emacs exer2.html
+2. C-k (kill to the end of the line) 
+3. C-s DELETE, C-a, C-k
+4. C-s https://en.wikipedia.org/wiki/HTML_comment#Comments, C-a, 
+C-k (three times because three lines)
+5. same commands as #3 and #4, C-s <!--
+deleted comments: 
+<!---->
+
+-<!--                                                                                      
+-<p>Or maybe more lines, if something has gone wrong.</p>                                  
+--<->-                                                                                     
+---> 
+
+<!-- end of HTML resource -->       
+
+
+
+Exercise 1.3: Inserting text in Emacs
+
+1. emacs exer3.html
+2. C-s Assignment 1, typed in Assignment 42
+3. C-s US-ASCII, typed in US-ASCII
+4. C-M-s [^[:ascii:]], C-a, C-k
+5. C-s </ol>
+6. diff -u exer1.html exer3.html >exer3.diff
+
+
+
+Exercise 1.4: Other editing tasks in Emacs
+
+1. cat exer2.html exer2.diff >exer4.html
+2. emacs exer4.html
+3. M-> (go to bottom of file)
+make a mark C-SP to highlight
+M-w (copy text) 
+C-y (paste text)
+4. repeat ^
+5. M->, C-a, C-k (kill line)
+6. C-x u (to undo)
+7. added to beginning of diff output <!--, M-> and added --> to end of file
+
+8. C-s <ol> 
+M-< M-w count-matches RET <ol> RET 
+7 instances 
+M-< M-w replace-string RET <ol> RET <oL> ret
+
+9. diff -u exer1.html exer4.html >exer4.diff
+Checked!
+
+
+
+Exercise 1.5: Doing commands in Emacs
+
+1. M-x make-directory ~/junk
+2. M-x dired ~/junk
+make c file
+C-x C-f ~/junk/hello.c
+3. M-x compile RET gcc hello.c -o hello
+4. M-! ./hello
+make new buffer
+
+C-x b hello-out
+C-u M-! ./hello
+
+5. C-SP, M-w (copy text), C-x C-f ~/key1.txt (find and go into key1.txt),
+M-> (go to end of file),  C-y (paste)
+
+EOF on input
+
+
+
+Exercise 1.6: Running Elisp code
+
+1. emacs, C-x b 
+2. 
+most-negative-fixnum C-j
+-2305843009213693952
+
+most-positive-fixnum C-j
+2305843009213693951
+
+convert to hexadecimal
+(format	"%x" -2305843009213693952) C-j
+"-2000000000000000"
+
+(format "%x" 2305843009213693951) C-j
+"1fffffffffffffff"
+
+These values are the minimum and maximum values that Emacs Lisp can handle (-2^61-1 and 2^61-1)
+
+3.
+(random "505-313-300") C-j
+-1833418031267523901
+
+4. (setq x (random)) C-j
+-1148518810938282427
+
+(setq y (random)) C-j
+-2034407677764714670
+
+
+5. (setq p (* x y)) C-j
+2336555487030042526178453115530104090
+
+(setq r (logand p most-positive-fixnum)) C-j
+362086295208709402
+
+6. 2336555487030042526178453115530104090 vs. 362086295208709402
+not mathematically correct
+
+
+7. The two integers x and y are not truly random in the mathematical sense because this generator produces psuedo-random numbers because the computer uses an algorithm/pattern to simulate these random numbers; however, random values should nor be produced by any sort of algorithm. In fact, in Emacs, pseudo-random numbers come from a seed number, and from any seed, the random function generates the same number sequence each time. 
+
+8. If (random) is truly random, the probability of getting an incorrect product is almost 100%. Just from the example alone, both of the random numbers generated are 19 digits long and as a result, the product of the two numbers will always cause an overflow (xy> 2^64). In order to not have an overflow, x and y must be less than 2^32 (4294967296), but the random numbers generated are way bigger than that value already. 
+We know that the P(x>2^32 and y>2^32) = P(x>2^32) * P(y>2^32). 
+However, we know that the range of these random numbers can stretch from negative infinity to infinity, and so the probability that x and y are less than 2^32 is very, very low (Close to zero). As a result, the probability that both x and y are greater than 2^32 is almost 100%, and the probability that the r value mentioned above is the mathematically correct product of the two integers is almost 0%. 
+

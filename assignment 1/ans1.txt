@@ -1,0 +1,133 @@
+Megan Pham
+505-313-300
+CS 35L Lab 5
+
+Assignment 1. Getting to know your system
+
+
+Laboratory: Linux and Emacs scavenger hunt
+
+1. man -k is similar to apropos , where it allows you to search up a keywords related to the command
+
+2. which mv 
+mv is located in /usr/local/cs/bin/mv
+which sh
+sh is located in /usr/bin/sh
+
+3. find /usr/bin -name "?r" -executable
+what do the files do?
+/usr/bin/tr - translate or delete characters (man tr)
+/usr/bin/ar - create, modify, and extract from archives (man ar)
+/usr/bin/pr - convert text files for printing (man pr)
+
+4. cd /usr/bin
+which emacs
+/usr/local/cs/bin/emacs
+
+5. /usr/bin/gcc -- version
+gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39)
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+gcc --version
+gcc (GCC) 10.2.0
+Copyright (C) 2020 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+They are different because if you check which gcc, it points to different versions of the gcc. 
+
+6. man chmod
+chmod u_sx means that you change the permissions for the owner (u), set user/group id
+on execution (s), and then allow the owner to execute (x). 
+chmod o-w means that you change the permissions for the users who are not the owner or
+part of the user group, so that they can write the file. 
+
+7. man find 
+to find directory: type -d
+mtime/mmin = modification time, atime/amin = access time, ctime/cmin = change time (when file attributes are changed) 
+We are looking at modification time, so 
+find /usr/local/cs -type d -mtime -28
+/usr/local/cs
+/usr/local/cs/src/bash
+/usr/local/cs/src/bash/RCS
+/usr/local/cs/src/grep
+/usr/local/cs/src/grep/RCS
+
+
+8.
+wc means word count = counts the number of files in the directory 
+man find
+which find --> /usr/bin/find
+find /usr/bin -type l
+
+we get 280 symbolic links
+
+9. 
+-a sorts and includes . 
+-t sorts by last modified (so we need -r to reverse the sort)
+head -n 1 shows the first entry 
+
+cd /usr/lib64
+ls -a -t -r | head -n 1 
+
+librom1394.so.0.3.0
+
+
+
+10. man locale
+man 5 locale 
+man 7 locale 
+According to man locale, locale gets its data from the current locale settings for each locale category if there are no arguments specified (/usr/lib/locale/locale-archive). However, if arguments are specified, then there is a list of pathnames that are used to find locale data (LOCPATH). If LOCPATH is set, then the locale data files from LOCPATH and system default locale data path are used, and available locale archives are not used. 
+
+
+11. C-h a downcase
+
+downcase-dwim
+downcase-region
+downcase-word
+
+12. go into manual C-h r
+C-s to search
+
+C-M-r = Regexp I-search backward
+This command reads a search string incrementally but instead of looking for the exact text like search, it uses a regexp instead. A regexp, or regular expression, is a pattern that gives a class of alternative strings to match. Every time you add more text to search, the regexp gets longer and has more to search for. C-M-r allows a user a search backward for a regexp. 
+
+C-M-s = Regexp search
+Similar to Regexp I-search backward, this command allows you to search for regular expressions but in the opposite order of C-M-r. A regular expression is a way of searching for different strings by being able to describe the form of your search. 
+
+C-M-t = transpose sexps
+This command allows you to transpose two balanced expressions and is very similar to C-x and C-t where you transpose two lines. 
+
+C-M-u = backwards up list
+This command allows a user to move BACKWARDS up in parenthesis structure (so you can move over groupings delimited by parentheses. 
+
+C-M-v = scroll other window
+This allows you to scroll to the next window upward. 
+
+
+
+13. same as 12
+C-h r to go into emacs manual
+C-s search C-g (quit)
+
+C-g is the quit command in emacs, and helps you cancel a partially typed command or a command that is running. The quit-flag variable is set up once the C-g command is typed so you can cancel a partial command.
+
+
+14. C-h r to go into emacs manual
+C-s and search "yank"
+
+
+Killing and yanking go hand-in-hand. While killing erases text and copies it into the "kill ring", the yanking command takes the text back from the kill ring and inserts text back. Usually, the way to move/copy text is to kill and then yank it. 
+
+Some commands used for yanking is 
+C-y = inserts the most recent kill and sets the mark at the beginning of inserted text
+M-y = replaces recently yanked text with an previously yanked texts (cycle through the kill ring
+C-M-w = causes the following kill command to append to the previous kill
+
+
+
+15. The Emacs dired command is a directory editor that allows you to operate on the listed files, such as flaggin, marking, running shell commands on the marked files, renaming files, and adding subdirectories. On the other hand, ls -l does not let you interact with the files and just shows you an overview of all the files inside the directory, whereas dired not only lets you see the files, but also operate on them. 
+
+C-h r, C-s dired and looked through the manual
