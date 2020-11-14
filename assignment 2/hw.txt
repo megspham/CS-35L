@@ -1,0 +1,47 @@
+Megan Pham
+505 313 300
+CS 35L 
+
+ASSIGNMENT 2 HOMEWORK
+
+ssh meganp@lnxsrv06.seas.ucla.edu
+man gpg
+gpg --gen-key ENTER 1, 2048, 0, y
+**add in information**
+gpg --export --armor > hw-pubkey.asc
+
+gpg --output hw-pubkey.sig --detach-sig hw.pubkey.asc
+**ENTER PASSWORD**
+
+gpg --verify hw-pubkey.sig hw-pubkey.asc
+
+
+1. If the other teams had been observing all the bytes 
+going across the network in my lab exercise, the resulting 
+network is still secure because our data is encrypted with 
+the public key, and you would need the private key to decrypt 
+the messages, so the bytes do not really have an effect on 
+whether or not the teams can read our data.
+
+(1) If the other teams had also tapped our keyboards after 
+completing set-up, they would be able to access our data. 
+They can see our password we entered when trying to encrypt the 
+data with our public key. The other teams would not be able to 
+access our private key but can still get onto our files since 
+they have access to the password.
+
+
+(2) If I am booting off USB and the other team gets physical 
+control of the USB, then they would definitely get control over 
+the data, since they would have access to the private key and 
+can decrypt the messages. 
+
+2. The gpg2 --verify command doesn't verify that you personally 
+created the file because it only checks detached signatures. 
+As a result, if someone were to get access to the signature, 
+they could modify it and make their own private key for the file. 
+There is no way we could see whether or not the signature belongs 
+to the creator of the file. To fix this problem, we could verify 
+through a certificate authority (ex. CAcert) which validates identities 
+and issues digital certificates that prove the ownership of a public 
+key to the owner. As a result, we can easily verify the original owner.

@@ -1,0 +1,60 @@
+Megan Pham
+505 313 300
+CS 35L
+
+Assignment 2 Lab
+===========================================
+
+LOG IN WITH SSH KEY
+
+ssh meganp@lnxsrv09.seas.ucla.edu
+ls -a (see hidden files)
+cd .ssh
+=== generating ssh keys === 
+ssh.keygen ENTER
+ENTER
+enter password
+ls-l (to see keys)
+for private key -rw------- 1
+for public key -rw-r--r-- 1
+
+now log onto lnexsrv07
+ssh meganp@lnxsrv07.seas.ucla.edu
+cd .ssh
+ls -l
+touch authorized_keys 
+
+now we need to put public key into file authorized_keys (NEVER SHARE PRIVATE KEYS)
+
+cat id_rsa.pub >> authorized_keys
+
+now confirm login with ssh key
+switch back to lnxsrv09 terminal
+ssh -i id_rsa meganp@lnxsrv07.seas.ucla.edu
+and you'll be logged into lnxsrv07
+===========================================
+
+LOG IN TO SSH-AGENT
+
+on lnxsrv09
+cd .ssh
+eval 'ssh-agent'
+ssh-add id_rsa
+
+ssh meganp@lnxsrv07.seas.ucla.edu
+
+===========================================
+
+PORT FORWARDING (downloaded xquartz)
+
+ssh meganp@lnxsrv09.seas.ucla.edu -Y
+xeyes
+
+==========================================
+
+MULTI-HOP SSH
+
+go from 09 to 07 to 10 (07 is jump box)
+
+ssh -A -t meganp@lnxsrv09.seas.ucla.edu ssh -A -t meganp@lnxsrv07.seas.ucla.edu ssh -A meganp@lnxsrv10.seas.ucla.edu
+
