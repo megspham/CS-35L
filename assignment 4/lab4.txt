@@ -1,0 +1,88 @@
+Megan Pham
+505 313 300
+
+Lab 4
+
+mkdir 35Week4
+cd 35Week4
+
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz.sig
+wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+
+We need to unzip the tar file archive
+tar -xJvf coreutils-8.29.tar.xz 
+which extracts, filters through gzip and xz, and prints out info
+
+
+1. gpg --verify --keyring ./gnu-keyring.gpg coreutils-8.29.tar.xz.sig
+
+There was a warning when verifying keyring; states that the key is not
+certified with a trusted signature. This is because the computer cannot
+tell if the signature is from the owner or not. 
+
+2. Install Coreutils into temporary directory: 
+cd ..
+mkdir lab4Install
+
+cd coreutils-8.29
+cat INSTALL 
+
+Inside the INSTALL file, it gives you basic instructions on how to use
+configure and make. 
+
+./configure --prefix=/u/cs/ugrad/meganp/35Week4/lab4Install
+make
+
+make install
+
+cd ..
+cd lab4Install
+cd bin
+ls -l
+
+
+3. Reproduce bug? 
+make a temporary directory
+mkdir foo
+cd foo
+~/35Week4/lab4Install/bin/ls -fA
+
+This outputs . and .. 
+
+
+4. apply patch of Bug#30963 Message #10 
+get the patch file out of the email attachment
+we can see that we only need the patch file regarding ls.c 
+
+wget https://debbugs.gnu.org/cgi/bugreport.cgi?msg=10;bug=30963;att=1;
+filename=0001-ls-A-now-overrides-a.patch > Coreutils.patch
+
+go into the coreutils-8.29 folder to apply patch
+cd 35Week4
+cd coreutils-8.29
+patch -p1 < /u/cs/ugrad/meganp/35Week4/Coreutils.patch
+
+We see that one part of the patch fails at NEWS, but fortunately, we 
+only need to look at ls.c and it was a success patching that file
+
+
+we are in coreutils-8.29
+need to configure -> ./configure
+make
+
+When running make command, there is an error because automake-1.15 is missing
+on my system.
+downloaded automake
+autoreconf -f -i
+make 
+
+
+6. check!
+
+cd ..
+cd foo
+/u/cs/ugrad/meganp/35Week4/bin/ls -fA
+outputs nothing, which is correct! does not output . and ..
+
+

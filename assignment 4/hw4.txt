@@ -1,0 +1,75 @@
+
+Megan Pham
+505 313 300
+
+Homework 4: Rewriting a script
+
+wget https://web.cs.ucla.edu/classes/fall20/cs35L/assign/randline.py
+
+
+Q1. Does the patch improve the performance of ls or make it worse?
+Briefly explain.
+
+The patch does improve the performance of ls because if we check out
+the patch file and what it does to the ls.c code, then we can see that
+it gets rid of the if statement, so that is one less conditional
+statement to go through. Furthermore, the flags are able to override
+each other, depending on the order.  
+
+Q2. If your company adopts this patched version of Coreutils instead of the
+default one, what else should you watch out for? Might this new version of
+Coreutils introduce other problems with your application?
+
+If my company adopts this patched version of Coreutils instead of the
+default one, I would have to watch out for any other files that also
+use the version of ls with the bug inside. This patch only fixes this one
+ls file, so if another directory/file utilizes ls, then we would have
+to patch that one up as well. 
+ 
+Q3. What happens when this script is invoked on an empty file like
+/dev/null, and why?
+
+If the script is invoked on an empty file like /dev/null, there is an
+index error because the file attempts to print out lines from a file
+that is empty. As a result, it cannot access an empty file and get its
+length, so there is an IndexError.
+
+python randline.py /dev/null
+Traceback (most recent call last):
+  File "randline.py", line 70, in <module>
+    main()
+  File "randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/local/cs/Python-2.7.18/lib/python2.7/random.py", line 277,
+  in choice
+    return seq[int(self.random() * len(seq))]  # raises IndexError if
+    seq is empty
+IndexError: list index out of range
+
+
+Q4. What happens when this script is invoked with Python 3 rather
+than Python 2, and why? (You can run Python 3 on the SEASnet hosts
+by using the command python3 instead of python.)
+
+When this script is invoked with Python 3 rather than Python 2, there
+is a syntax error because Python3 is an updated version, so we would
+need to change the outdated script. 
+
+python3 randline.py /dev/null
+  File "/w/home.27/cs/ugrad/meganp/randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+
+Q5. What happens when your shuf.py script is invoked with Python 2
+rather than Python 3, and why?
+With this code, the shuf.py script ran fine with Python 2 and Python 3.
+However, usually, Python 3 is not backwardly compatible with Python 2
+because some libraries/code are only exclusive only to Python 3, since
+Python 2 is more outdated. 
+
+
+
