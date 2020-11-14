@@ -1,0 +1,220 @@
+CS 35L Assignment 5
+Megan Pham
+505313300
+
+Lab: Debugging a C Program
+
+wget https://web.cs.ucla.edu/classes/fall20/cs35L
+/assign/coreutils-with-bug.tar.gz
+
+tar -xzvf coreutils-with-bug.tar.gz
+
+Same as lab 4, let's install coreutils with bug
+into a temporary directory
+
+mkdir 35Week5
+cd 35Week5
+mkdir lab5Install
+cd coreutils-with-bug
+cat INSTALL 
+
+We can get instructions from INSTALL file to
+install coreutils-with-bug into our lab5Install
+
+./configure --prefix=/u/cs/ugrad/meganp/35Week5/lab5Install
+make
+
+When I tried to use make, there was an error with futimens. 
+
+utimens.h:2:5: error: conflicting types for 'futimens'
+    2 | int futimens (int, char const *, struct timespec const [2]);
+      |     ^~~~~~~~
+In file included from utimecmp.h:25,
+                 from utimecmp.c:25:
+/usr/include/sys/stat.h:373:12: note: previous
+declaration of 'futimens' was here
+  373 | extern int futimens (int __fd, const struct timespec
+  __times[2]) __THROW;
+      |            ^~~~~~~~
+
+
+make install
+
+Again, when I tried make install, the same problem happened
+with futimens and the system left the directory. The futimens
+function is alredy defined somewhere else, so that's why an
+error was thrown.
+
+Using the patch: 
+cd.. (in regular directory)
+wget https://web.cs.ucla.edu/classes/fall20/cs35L/assign/
+coreutils.diff
+
+patch -p0 < /u/cs/ugrad/meganp/35Week5/coreutils.diff
+
+Patch works because it renames futimen, so that there isn't
+a repeat attempt at declaring the function. futimens is changed
+to coreutils_futimens, and tee is changed to coreutils_tee. 
+
+./configure --prefix=u/cs/ugrad/meganp/35Week5/lab5Install
+make
+
+
+reproduce the problem!
+$ touch -d '1918-11-11 11:00 GMT' /run/user/$(id -u)/stamp-wwi-armistice
+$ touch /run/user/$(id -u)/stamp-now
+$ sleep 1
+$ touch /run/user/$(id -u)/stamp-now1
+$ TZ=UTC0 /u/cs/ugrad/meganp/35Week5/lab5Install/bin/ls -lt
+--full-time /run/user/$(id -u)/stamp*
+
+This outputs ...
+-rw-r--r-- 1 meganp csugrad 0 1918-11-11 11:00:00.000000000 +0000
+/run/user/14383/stamp-wwi-armistice
+-rw-r--r-- 1 meganp csugrad 0 2020-11-10 01:07:54.850569045 +0000
+/run/user/14383/stamp-now1
+-rw-r--r-- 1 meganp csugrad 0 2020-11-10 01:07:45.986295639 +0000
+/run/user/14383/stamp-now
+
+The problem with this output is that the first file from 1918
+is in the beginning, which means that it is newest file out
+of the three. However, it should be below the now file
+since it is the oldest one. 
+
+$ rm /run/user/$(id -u)/stamp*
+
+Use a debugger to figure out what went wrong 
+gdb /u/cs/ugrad/meganp/35Week5/lab5Install/bin/ls
+
+
+From looking at the coreutils/ls.c file, we can see that we only
+need to figure out what happened with the sorting function (as
+ls.c sorted our files in the wrong order). From scrolling through
+the list, there is a function called sort_files, which might be
+where our bug is.
+
+info functions (to see all functions)
+
+break sort_files
+
+run -lt --full-time /run/user/$(id -u)/stamp*
+n
+n
+n
+
+As I am stepping through all the commands, I see 
+
+func = sort_reverse ? rev_cmp_mtime : compare_mtime;
+
+which is probably a good indicator that the functions
+rev_cmp_mtime and compare_mtime can be where the bug is
+since we are comparing times. Set breakpoints
+
+break compare_mtime
+break rev_cmp_mtime
+n
+n
+
+We are now at the compare_mtime breakpoint. From the
+compare_mtime, we see that it returns cmp_mtime, so set
+a breakpoint there. 
+
+break cmp_mtime
+break timespec_cmp
+
+continue (goes to next breakpoint)
+
+I am at the timespec_cmp function, and I check what the full
+function is since the beginning of the function uses a subtraction.
+From what the TA said before, the error is due to overflow, so
+this is a good indication. 
+
+list
+ Assume the nanosecond components are in range, or close to it.  */
+45	static inline int
+46	timespec_cmp (struct timespec a, struct timespec b)
+47	{
+48	  int diff = a.tv_sec - b.tv_sec;
+49	  return diff ? diff : a.tv_nsec - b.tv_nsec;
+50	}
+51	
+52	# if ! HAVE_DECL_NANOSLEEP
+53	/* Don't specify a prototype here.  Some systems (e.g., OSF) declare
+	nanosleep with a conflicting one (const-less first parameter).  */
+55	int nanosleep ();
+56	# endif
+57	
+58	void gettime (struct timespec *);
+59	int settime (struct timespec const *);
+60	
+61	#endif
+
+As you can see, the error probably comes from 
+int diff = a.tv_sec - b.tv_sec;
+because of overflow. Since wwi-armistice is from 1918 compared
+to 2020, the huge difference in nanoseconds would cause an overflow.
+As a result, the program thinks that wwi-armistice is in the future
+due to the fact that the negative number overflows to a positive number. 
+
+
+Now, we have to fix the error and create a lab5.diff
+
+cd coreutils-with-bug
+cd lib
+cat timespec.h 
+
+
+
+cd ..
+
+cp ~/35Week5/tryAgain/coreutils-with-bug/lib/timespec.h
+~/35Week5/tryAgain/timespec.h
+
+emacs timespec.h
+timespec_cmp (struct timespec a, struct timespec b)
+{
+  if (a.tv_sec > b.tv_sec)
+    return 1;
+  else if (a.tv_sec < b.tv_sec)
+    return -1;
+  else 
+    return 0;
+}
+
+
+Now create patch file
+
+diff -u ~/35Week5/tryAgain/coreutils-with-bug/lib/timespec.h
+~/35Week5/tryAgain/timespec.h > ~/35Week5/tryAgain/lab5.diff
+
+emacs lab5.diff
+changed the paths at the top to lib/timespec.h
+
+
+patch -p0 < /u/cs/ugrad/meganp/35Week5/tryAgain/lab5.diff
+
+go to coreutils-with-bug
+./configure --prefix=/u/cs/ugrad/meganp/35Week5/tryAgain
+
+make
+
+
+$ touch -d '1918-11-11 11:00 GMT' /run/user/$(id -u)/stamp-wwi-armistice
+$ touch /run/user/$(id -u)/stamp-now
+$ sleep 1
+$ touch /run/user/$(id -u)/stamp-now1
+$ TZ=UTC0 /u/cs/ugrad/meganp/35Week5/tryAgain/bin/ls -lt --full-time
+/run/user/$(id -u)/stamp*
+
+
+When I run it again, it works, and wwi-armistice is after the other files
+-rw-r--r-- 1 meganp csugrad 0 2020-11-10 01:07:54.850569045 +0000
+/run/user/14383/stamp-now1
+-rw-r--r-- 1 meganp csugrad 0 2020-11-10 01:07:45.986295639 +0000
+/run/user/14383/stamp-now
+-rw-r--r-- 1 meganp csugrad 0 1918-11-11 11:00:00.000000000 +0000
+/run/user/14383/stamp-wwi-armistice
+
+
+
+
