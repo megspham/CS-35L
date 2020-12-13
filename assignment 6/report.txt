@@ -1,0 +1,446 @@
+
+
+Assignment 6. System call programming and debugging
+
+Megan Pham - 505313300
+
+
+Lab: Buffered versus unbuffered I/O
+
+
+1. tr2b.c 
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+void inputError () {
+  if (ferror(stdin)!=0) {
+    fprintf(stderr, "Input error!");
+    exit(1);
+  }
+}
+
+void outputError() {
+  if (ferror(stdin)!=0)
+    {
+      fprintf(stderr, "Output error");
+      exit(1);
+    }
+}
+
+
+
+int main (int argc, char *argv[]) {
+
+  if (argc!= 3){
+    printf("%d\n", argc);
+    fprintf (stderr, "Wrong number of operands\n");
+    exit(1); 
+  }
+	
+  char *from = argv[1]; 
+  char *to = argv[2];
+  int word = 0; 
+  
+  
+  int fromsize = strlen(from);
+  int tosize = strlen(to);
+  
+  if (fromsize!= tosize){
+    fprintf (stderr, "Strings are not the same length\n");
+    exit(1);
+  }
+
+  for (int i=0; i< fromsize; i++){
+    for (int j=i+1; j<fromsize; j++){
+      if (from[i] == from [j]){
+        printf ("%c1\n", from[i]);
+        fprintf(stderr, "Duplicate letter found!\n");
+        exit(1);
+      }
+      if (from[i] == to[i]){
+	printf ("%c\n2", from[i]);
+	fprintf(stderr, "Duplicate letter found!\n");
+	exit(1); 
+      }
+	if (to[i] == to [j]){
+	  printf ("%c\n3", to[i]);
+	  fprintf(stderr, "Duplicate letter found!\n");
+	  exit(1);
+	}	
+      }
+    }
+  
+ 
+  while (1) {
+   
+    word = getchar();
+
+    if (word == EOF)
+      break;
+    
+    for (int l=0; l<fromsize; l++){
+	if (from[l] == word)
+	  word = to[l];
+      }
+      putchar (word);
+      outputError();
+    }
+    return 1;
+    
+  }
+
+
+
+
+
+
+2. tr2u.c 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+
+void inputError () {
+  if (ferror(stdin)!=0) {
+    fprintf(stderr, "Input error!");
+    exit(1);
+  }
+}
+
+void outputError() {
+  if (ferror(stdin)!=0){
+    fprintf(stderr, "Output error");
+    exit(1);
+  }
+}
+
+
+
+int main (int argc, char *argv[]) {
+
+  if (argc!= 3){
+    fprintf (stderr, "Wrong number of operands\n");
+    exit(1); 
+  }
+  
+  char *from = argv[1]; 
+  char *to = argv[2];
+  int word = 0; 
+
+  
+  int fromsize = strlen (from);
+  int tosize = strlen(to);
+
+  if (fromsize!= tosize){
+    fprintf (stderr, "Strings are not the same length\n");
+    exit(1);
+  }
+  
+  for (int i=0; i< fromsize-1; i++){
+    for (int j=i+1; j< fromsize; j++){
+      if (from[i] == from [j]){
+	fprintf(stderr, "Duplicate letter found!\n");
+	exit(1);
+      }
+      if (from[i] == to[j]){
+	fprintf(stderr, "Duplicate letter found!\n");
+	exit(1); 
+      }
+      if (to[i] == to [j]){
+	fprintf(stderr, "Duplicate letter found!\n");
+	exit(1);
+      }	
+    }
+  }
+
+  //	ssize_t word = read(0, &c, sizeof(char)); 
+  
+  while(1){
+    ssize_t s = read(0, &word, sizeof(char));
+    if (s==0)
+      break;
+    if (word == EOF)
+      break;
+    
+    for (int l=0; l<fromsize; l++){
+      if (from[l] == word)
+	word = to[l];
+    }
+    write(1, &word, sizeof(char));
+    outputError();
+  }
+  printf("\n");
+  
+  return 1;
+}
+
+
+
+
+3. use strace command to compare system calls by tr2b and tr2u commands
+
+//make a file of 5,000,000 bytes
+dd if=/dev/urandom of=upload_test bs=5000000 count=1
+
+a) copying one file to another 
+for tr2b:
+strace -c ./tr2b 'ab' 'rj' < upload_test > tr2bOut
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 51.55    0.000984           2       611           write
+ 30.96    0.000591           1       613           read
+  5.50    0.000105          12         9           mmap
+  4.09    0.000078          20         4           mprotect
+  2.04    0.000039          10         4           fstat
+  1.57    0.000030          15         2           open
+  1.26    0.000024          24         1           munmap
+  0.84    0.000016          16         1           execve
+  0.73    0.000014           7         2           close
+  0.73    0.000014          14         1         1 access
+  0.37    0.000007           7         1           brk
+  0.37    0.000007           7         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.001909                  1250         1 total
+
+
+for tr2u: 
+strace -c ./tr2u 'ab' 'rj' <upload_test > tr2uOut
+
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 54.54   25.966524           5   5000001           write
+ 45.46   21.644812           4   5000002           read
+  0.00    0.000101          34         3           fstat
+  0.00    0.000100          13         8           mmap
+  0.00    0.000061          15         4           mprotect
+  0.00    0.000029          15         2           open
+  0.00    0.000024          24         1           munmap
+  0.00    0.000014           7         2           close
+  0.00    0.000014          14         1         1 access
+  0.00    0.000014          14         1           execve
+  0.00    0.000008           8         1           brk
+  0.00    0.000007           7         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   47.611708              10000027         1 total
+
+
+b) copying a file to terminal
+
+
+for tr2b:
+strace -c ./tr2b 'ab' 'rj' < upload_test 
+
+time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 97.79    0.175115           9     19994           write
+  2.19    0.003916           6       613           read
+  0.01    0.000023           6         4           fstat
+  0.01    0.000020           2         9           mmap
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.179074                 20633         1 total
+
+
+for tr2u: 
+strace -c ./tr2u 'ab' 'rj' <upload_test 
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 57.07   29.206426           6   5000001           write
+ 42.93   21.968960           4   5000002           read
+  0.00    0.000009           1         8           mmap
+  0.00    0.000005           2         3           fstat
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   51.175400              10000027         1 total
+
+
+
+
+
+4. running time command
+
+time ./tr2b 'ab' 'rj' <upload_test > tr2bout
+
+real	0m0.366s
+user	0m0.307s
+sys	0m0.018s
+
+time ./tr2u 'ab' 'rj' <upload_test >tr2uout
+
+real	0m12.718s
+user	0m3.408s
+sys	0m9.264s
+
+
+As we can see, the buffered program is significantly faster
+than the unbuffered program. tr2b makes less system calls than
+tr2u, making the program run faster. 
+
+
+=====================================
+
+Homework 6
+
+In this homework assignment, I had to use system calls instead
+of <stdio.h> to read and write standard input and output. My
+sfrob.c was very similar to my sfrob.c, However, instead of
+using getchar() and putchar(), I had to use read() and write()
+instead. Furthermore, since I used a buffer, I had to make sure
+that it never filled up completely and always had room to read
+more input. Last, I made sure to implement the -f flag. If it was
+implemented, then the case would not matter. 
+
+dd if=/dev/urandom of=test100 bs=100 count=1
+dd if=/dev/urandom of=test10000 bs=10000 count=1
+dd if=/dev/urandom of=testmillion bs=1000000 count=1
+
+ZERO
+time ./sfrobu < test0 > outtest0.txt
+real	0m0.004s
+user	0m0.000s
+sys	0m0.002s
+
+
+time ./sfrob < test0 > outtest0.txt
+real	0m0.004s
+user	0m0.000s
+sys	0m0.003s
+
+
+
+HUNDRED
+time ./sfrobu < test100 > outtest100.txt
+
+real	0m0.005s
+user	0m0.002s
+sys	0m0.001s
+
+time ./sfrob < test100 > outtest100s.txt
+
+real	0m0.005s
+user	0m0.000s
+sys	0m0.003s
+
+
+TEN THOUSAND
+time ./sfrobu < test10000 > outtest10000.txt
+real	0m0.025s
+user	0m0.010s
+sys	0m0.012s
+
+time ./sfrob < test10000 > outtest10000s.txt
+
+real	0m0.006s
+user	0m0.002s
+sys	0m0.003s
+
+
+
+ONE MILLION 
+time ./sfrobu < testmillion > outtestmillion.txt
+real	0m1.414s
+user	0m0.554s
+sys	0m0.849s
+
+
+time ./sfrob < testmillion > outtestmillions.txt
+
+real	0m0.148s
+user	0m0.129s
+sys	0m0.009s
+
+
+We notice that sfrob has a lower system time because it requires
+less system calls. As a result, the kernel does not have to take
+over and switch back and forth. This switching is what makes
+system calls slower to execute. Furthermore, if we had to add
+the f flag, it would take sfrobu longer to run as well. Obviously,
+the more input lines there are, the higher the CPU time cost. 
+
+strace -c ./sfrobu <testmillion 
+י %  % time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 99.02    3.965437           4   1000003           read
+  0.97    0.038905          10      3819           write
+  0.00    0.000088          10         9           mmap
+  0.00    0.000079           3        28           brk
+  0.00    0.000060          15         4           mprotect
+  0.00    0.000042          14         3           open
+  0.00    0.000041          10         4           fstat
+  0.00    0.000031          10         3           munmap
+  0.00    0.000020           7         3           close
+  0.00    0.000015          15         1           execve
+  0.00    0.000014          14         1         1 access
+  0.00    0.000007           7         1           arch_prctl
+  0.00    0.000000           0         1           mremap
+------ ----------- ----------- --------- --------- ----------------
+100.00    4.004739               1003880         1 total
+
+
+
+strace -c ./sfrobu <test100 
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 41.35    0.000129           1       102           read
+ 17.31    0.000054           8         7           mmap
+ 12.82    0.000040          10         4           mprotect
+  5.77    0.000018           9         2           open
+  5.13    0.000016          16         1           munmap
+  4.17    0.000013          13         1           write
+  3.53    0.000011           3         4           brk
+  3.21    0.000010           3         3           fstat
+  2.88    0.000009           9         1         1 access
+  2.56    0.000008           8         1           execve
+  0.96    0.000003           2         2           close
+  0.32    0.000001           1         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000312                   129         1 total
+
+
+
+strace -c ./sfrobu <test0
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 26.52    0.000048          12         4           mprotect
+ 25.97    0.000047           7         7           mmap
+ 10.50    0.000019          10         2           open
+  9.39    0.000017          17         1           munmap
+  6.63    0.000012           4         3           fstat
+  5.52    0.000010          10         1         1 access
+  5.52    0.000010          10         1           execve
+  4.42    0.000008           2         4           brk
+  3.87    0.000007           4         2           read
+  1.10    0.000002           1         2           close
+  0.55    0.000001           1         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000181                    28         1 total
+
+If the assignment was changed so that the rewritten program had to use
+system calls rather than <stdlib.h> memory allocation functions, then
+the program would have to use calls, such as mmap and execve (looking
+at the strace chart). What I noticed was that brk increased as there
+was more input. Looking at man brk, I can tell that brk is used to
+change data segment size (or reallocate memory so that the system does
+not exceed its maximum data size). 
