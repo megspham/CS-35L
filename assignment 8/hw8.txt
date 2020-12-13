@@ -1,0 +1,115 @@
+Homework 8: Verifying and publishing a backported change
+Megan Pham
+505 313 300
+
+1. touch hw8.txt
+2. 
+git clone https://git.savannah.gnu.org/git/diffutils.git diffutilshw
+cd diffutilshw
+git checkout v3.0 -b quote 
+3. patch -p1 < ../quote-3.0-patch.txt
+output:
+patching file src/cmp.c
+patching file src/diff.c
+patching file src/diff3.c
+patching file src/dir.c
+patching file src/sdiff.c
+patching file src/util.c
+
+4.  Learn how to use Emacs function
+add-change-log-entry-other-window (C-x 4 a) adds a new entry to the 
+change log file for the file you are editing  unless the most recent 
+entry is for today's data and your name. 
+
+5. files to look at:
+src/cmp.c
+src/diff.c
+src/diff3.c
+src/dir.c
+src/sdiff.c
+src/util.c
+
+emacs (for each file)
+C-x 4 a
+
+paste (for each file):
+    * src/cmp.c (try_help, specify_ignore_initial, usage, main):
+    * src/diff.c (main, try_help, option_help_msgid, specify_value)
+    (compare_files):
+    * src/diff3.c (main, try_help, option_help_msgid, usage)
+    (read_diff):
+    * src/dir.c (compare_names):
+    * src/sdiff.c (try_help, usage, check_child_status, main):
+    * src/util.c (finish_output):
+
+C-c C-s (save to ChangeLog)
+C-x C-c
+
+For this, I emacs-d every file that was edited and pasted the corresponding phrase 
+from git log onto the ChangeLog file from C-x 4 a. I realized that to save I 
+had to save through C-x C-s and then exit with C-x C-c. This process took a while 
+because I was not sure where I was looking, where the ChangeLog file should be stored, 
+and what I had to input for the log.
+
+6. git add .
+git commit -F ChangeLog
+
+output:
+[quote 72e6b39] 2020-12-03  Megan Khanh Tam Pham  <meganp@lnxsrv07.seas.ucla.edu>
+ Committer: Megan Khanh Tam Pham <meganp@lnxsrv07.seas.ucla.edu>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 6 files changed, 45 insertions(+), 45 deletions(-)
+
+
+
+7. built a patch using git format-patch
+git format-patch -1 --stdout > ../formatted-patch.txt
+
+8. testing our new patch
+git clone https://git.savannah.gnu.org/git/diffutils.git diffutilshwtest
+cd diffutilshwtest
+git checkout v3.0 -b patchery
+git am < ../formatted-patch.txt
+
+./bootstrap
+I am using lnxsrv07, so I have to apply extra patch for the gets function.
+patch -p0 < ../diffutils-gets.diff
+./configure
+make
+make check
+
+It works!
+
+9. make distdir
+I see my log when I open the file. It works!
+
+10. 
+I must run with ssh -Y because if not, the Tk process will not connect to X11 
+on Ubuntu machine. 
+ssh -Y meganp@lnxsrv07.seas.ucla.edu
+cd ~eggert/src/gnu/emacs
+gitk --until=2015-01-26 
+
+A new window popped for me labeled emacs: -gitk. The top part of the window 
+shows branches and commits with the name of the person and the exact time that 
+they committed. The viewer is able to find and search through commits using the 
+containing: search button. Furthermore, on the right side of the window, once 
+you press a commit to examine, you can see its diff, old version, or new version 
+file. On the left side, you can look through files of the patch or tree, depending 
+on what option you choose. This window shows the whole git process (merging, 
+branching, and committing), and users are allowed to look through the commits. 
+
+
+
+

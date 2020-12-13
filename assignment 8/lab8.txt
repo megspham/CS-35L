@@ -1,0 +1,510 @@
+Lab 8: Managing a backported change
+Megan Pham
+505 313 300
+
+1. git clone https://git.savannah.gnu.org/git/diffutils.git
+cd diffutils
+
+2. touch git-log.txt
+git log > git-log.txt
+
+3. touch git-tags.txt
+git tag > git-tags.txt
+
+4. commit 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f 
+git show 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f > 
+../quote-patch.txt
+
+5. git checkout v3.0
+
+6. patch -p1 < ../quote-patch.txt
+I had to skip a couple of files (3 times), but finally it 
+figured out which file to patch. 
+
+output:
+patching file ms/config.bat
+patching file ms/config.site
+Hunk #1 succeeded at 73 with fuzz 1.
+patching file po/en.po
+patching file src/analyze.c
+patching file src/cmp.c
+Hunk #1 succeeded at 36 with fuzz 1.
+Hunk #4 succeeded at 185 (offset -6 lines).
+Hunk #5 succeeded at 231 (offset -6 lines).
+Hunk #6 succeeded at 257 (offset -6 lines).
+Hunk #7 succeeded at 269 (offset -6 lines).
+Hunk #8 succeeded at 364 (offset -6 lines).
+Hunk #9 succeeded at 377 (offset -6 lines).
+patching file src/context.c
+Hunk #1 succeeded at 159 (offset 1 line).
+Hunk #2 succeeded at 289 (offset 1 line).
+Hunk #3 succeeded at 393 with fuzz 2 (offset 1 line).
+Hunk #4 succeeded at 431 (offset 1 line).
+Hunk #5 succeeded at 459 (offset 1 line).
+patching file src/diff.c
+Hunk #1 succeeded at 40 with fuzz 2 (offset -2 lines).
+Hunk #2 succeeded at 57 (offset -2 lines).
+Hunk #3 succeeded at 92 (offset -2 lines).
+Hunk #4 succeeded at 330 (offset -10 lines).
+Hunk #5 succeeded at 505 (offset -10 lines).
+Hunk #6 succeeded at 534 (offset -10 lines).
+Hunk #7 succeeded at 585 (offset -14 lines).
+Hunk #8 succeeded at 744 (offset -14 lines).
+Hunk #9 succeeded at 826 (offset -14 lines).
+Hunk #10 FAILED at 876.
+Hunk #11 FAILED at 906.
+Hunk #12 FAILED at 942.
+Hunk #13 succeeded at 960 with fuzz 2 (offset -29 lines).
+Hunk #14 succeeded at 1159 with fuzz 2 (offset -32 lines).
+3 out of 14 hunks FAILED -- saving rejects to file src/diff.c.rej
+patching file src/diff.h
+Hunk #2 succeeded at 126 with fuzz 2 (offset -13 lines).
+Hunk #3 succeeded at 202 (offset -13 lines).
+patching file src/diff3.c
+Hunk #1 succeeded at 35 (offset 1 line).
+Hunk #2 succeeded at 159 (offset 1 line).
+Hunk #3 succeeded at 316 (offset 1 line).
+Hunk #4 succeeded at 351 (offset 1 line).
+Hunk #5 succeeded at 412 (offset 1 line).
+Hunk #6 FAILED at 433.
+Hunk #7 succeeded at 460 with fuzz 2 (offset -18 lines).
+Hunk #8 succeeded at 1275 (offset -18 lines).
+Hunk #9 succeeded at 1475 (offset -18 lines).
+1 out of 9 hunks FAILED -- saving rejects to file src/diff3.c.rej
+patching file src/dir.c
+Hunk #1 succeeded at 84 (offset -1 lines).
+Hunk #2 succeeded at 125 (offset -1 lines).
+Hunk #3 succeeded at 154 (offset -1 lines).
+Hunk #4 succeeded at 234 (offset -1 lines).
+patching file src/ifdef.c
+patching file src/io.c
+patching file src/sdiff.c
+Hunk #2 succeeded at 92 (offset 1 line).
+Hunk #3 succeeded at 175 (offset 23 lines).
+Hunk #4 succeeded at 230 (offset 17 lines).
+Hunk #5 succeeded at 286 (offset 17 lines).
+Hunk #6 succeeded at 572 (offset 13 lines).
+Hunk #7 succeeded at 747 (offset 41 lines).
+patching file src/side.c
+patching file src/system.h
+Hunk #2 succeeded at 105 (offset 6 lines).
+patching file src/util.c
+Hunk #4 succeeded at 190 with fuzz 2.
+Hunk #8 succeeded at 650 (offset -27 lines).
+patching file tests/help-version
+Hunk #1 succeeded at 75 (offset 1 line).
+Hunk #2 succeeded at 85 (offset 1 line).
+Hunk #3 succeeded at 96 (offset 1 line).
+Hunk #4 succeeded at 108 (offset 1 line).
+Hunk #5 succeeded at 140 (offset 1 line).
+Hunk #6 succeeded at 188 (offset 1 line).
+
+7. git status
+HEAD detached at v3.0
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   NEWS
+	modified:   README
+	modified:   TODO
+	modified:   doc/diagmeet.note
+	modified:   ms/config.bat
+	modified:   ms/config.site
+	modified:   po/en.po
+	modified:   src/analyze.c
+	modified:   src/cmp.c
+	modified:   src/context.c
+	modified:   src/diff.c
+	modified:   src/diff.h
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/ifdef.c
+	modified:   src/io.c
+	modified:   src/sdiff.c
+	modified:   src/side.c
+	modified:   src/system.h
+	modified:   src/util.c
+	modified:   tests/help-version
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	NEWS.orig
+	README-hacking.orig
+	README-hacking.rej
+	README.orig
+	README.rej
+	cfg.mk.orig
+	cfg.mk.rej
+	ms/config.site.orig
+	quote-patch.txt
+	src/cmp.c.orig
+	src/context.c.orig
+	src/diff.c.orig
+	src/diff.c.rej
+	src/diff.h.orig
+	src/diff3.c.orig
+	src/diff3.c.rej
+	src/dir.c.orig
+	src/sdiff.c.orig
+	src/system.h.orig
+	src/util.c.orig
+	tests/help-version.orig
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+
+8. vc-diff (C-x v =) displays a diff file which compares each work 
+file in the current VC set to the versions that you edited. It is 
+displayed in another window called *vc-diff*.
+vc-revert (C-x v u) reverts the work files in the current VC fileset 
+to the last revision. 
+C-h m display mode
+diff-apply-hunk (C-c C-a) applies the hunk to the target file. With 
+the argument C-u, it will revert the hunk to the old version. 
+diff-goto-source (C-c C-c) goes to the source file and line corresponding 
+to the hunk, and by default will jump to the new version of the file; 
+If you include a prefix argument, it will jump to the old version in stead. 
+
+9. We need to use emacs to revert changes to non .c files that were modified. 
+
+	modified:   NEWS
+	modified:   README
+	modified:   TODO
+	modified:   doc/diagmeet.note
+	modified:   ms/config.bat
+	modified:   ms/config.site
+	modified:   po/en.po
+	modified:   src/diff.h
+	modified:   src/system.h
+	modified:   tests/help-version
+
+emacs NEWS
+C-x v =
+C-x v u
+yes
+
+emacs README
+C-x v =
+C-x v u
+yes
+
+emacs TODO
+C-x v =
+C-x v u
+yes
+
+emacs doc/diagmeet.note
+C-x v =
+C-x v u
+yes
+
+emacs ms/config.bat
+C-x v =
+C-x v u
+yes
+
+emacs po/en.po
+C-x v =
+C-x v u
+yes
+
+emacs src/diff.h
+C-x v =
+C-x v u
+yes
+
+emacs src/system.h
+C-x v =
+C-x v u
+yes
+
+emacs tests/help-version
+C-x v =
+C-x v u
+yes
+
+Now we need to undo all changes to .c files other than changes to 
+character string constants, as the character-string changes are the 
+only changes that you want. To do this, I will enter vc-diff and manually 
+check which changes are to character-string changes and which ones aren't. 
+
+
+	modified:   src/analyze.c
+	modified:   src/cmp.c
+	modified:   src/context.c
+	modified:   src/diff.c
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/ifdef.c
+	modified:   src/io.c
+	modified:   src/sdiff.c
+	modified:   src/side.c
+	modified:   src/util.c
+
+emacs src/analyze.c
+C-x v =
+C-x v u
+yes
+
+emacs src/cmp.c
+C-x v =
+C-x v u
+yes
+
+emacs src/context.c
+C-x v =
+C-x v u
+yes
+
+emacs src/diff.c
+C-x v =
+C-x v u
+yes
+
+emacs src/diff3.c
+C-x v =
+C-x v u
+yes
+
+emacs src/ifdef.c
+C-x v =
+C-x v u
+yes
+
+emacs src/io.c
+C-x v =
+C-x v u
+yes
+
+emacs src/sdiff.c
+C-x v =
+C-x v u
+yes
+
+emacs src/side.c
+C-x v =
+C-x v u
+yes
+
+emacs src/util.c
+C-x v =
+C-x v u
+yes
+
+
+
+10. 
+
+emacs src/diff.c.rej
+
+--- src/diff.c
++++ src/diff.c
+@@ -876,7 +876,7 @@
+   N_("-T, --initial-tab             make tabs line up by prepending a tab"),
+   N_("    --tabsize=NUM             tab stops every NUM (default 8) print columns"),
+   N_("    --suppress-blank-empty    suppress space or tab before empty output lines"),
+-  N_("-l, --paginate                pass output through `pr' to paginate it"),
++  N_("-l, --paginate                pass output through 'pr' to paginate it"),
+   "",
+   N_("-r, --recursive                 recursively compare any subdirectories found"),
+   N_("    --no-dereference            don't follow symbolic links"),
+@@ -906,13 +906,13 @@
+   N_("    --binary                    read and write data in binary mode"),
+ #endif
+   "",
+-  N_("-D, --ifdef=NAME                output merged file with `#ifdef NAME' diffs"),
++  N_("-D, --ifdef=NAME                output merged file with '#ifdef NAME' diffs"),
+   N_("    --GTYPE-group-format=GFMT   format GTYPE input groups with GFMT"),
+   N_("    --line-format=LFMT          format all input lines with LFMT"),
+   N_("    --LTYPE-line-format=LFMT    format LTYPE input lines with LFMT"),
+   N_("  These format options provide fine-grained control over the output\n"
+      "    of diff, generalizing -D/--ifdef."),
+-  N_("  LTYPE is `old', `new', or `unchanged'.  GTYPE is LTYPE or `changed'."),
++  N_("  LTYPE is 'old', 'new', or 'unchanged'.  GTYPE is LTYPE or 'changed'."),
+   N_("  GFMT (only) may contain:\n\
+     %<  lines from FILE1\n\
+     %>  lines from FILE2\n\
+@@ -942,9 +942,9 @@
+   N_("    --help               display this help and exit"),
+   N_("-v, --version            output version information and exit"),
+   "",
+-  N_("FILES are `FILE1 FILE2' or `DIR1 DIR2' or `DIR FILE...' or `FILE... DIR'."),
++  N_("FILES are 'FILE1 FILE2' or 'DIR1 DIR2' or 'DIR FILE...' or 'FILE... DIR'."),
+   N_("If --from-file or --to-file is given, there are no restrictions on FILE(s)."),
+-  N_("If a FILE is `-', read standard input."),
++  N_("If a FILE is '-', read standard input."),
+   N_("Exit status is 0 if inputs are the same, 1 if different, 2 if trouble."),
+   0
+ };
+
+
+
+emacs src/diff3.c.rej
+
+--- src/diff3.c
++++ src/diff3.c
+@@ -433,7 +433,7 @@
+   N_("-3, --easy-only             like -e, but incorporate only nonoverlapping changes"),
+   N_("-x, --overlap-only          like -e, but incorporate only overlapping changes"),
+   N_("-X                          like -x, but bracket conflicts"),
+-  N_("-i                          append `w' and `q' commands to ed scripts"),
++  N_("-i                          append 'w' and 'q' commands to ed scripts"),
+   "",
+   N_("-m, --merge                 output actual merged file, according to\n"
+      "                                -A if no other options are given"),
+
+
+I manually copied the rejected patches into diff.c and diff3.c using emacs.
+
+
+11. git clean -f
+12. git status
+
+	modified:   src/cmp.c
+	modified:   src/diff.c
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/sdiff.c
+	modified:   src/util.c
+git diff >../quote-3.0-patch.txt
+
+13. 
+cat README-hacking
+./bootstrap
+
+I am using lnxsrv07, so I have to apply extra patch for the gets function.
+
+wget https://web.cs.ucla.edu/classes/fall20/cs35L/assign/diffutils-gets.diff
+patch -p0 < ../diffutils-gets.diff
+./configure
+make
+make check
+
+diff . -
+output: diff: cannot compare '-' to a directory
+
+14. cp -r src ../diffutils-3.0-patch
+cd ..
+git clone https://git.savannah.gnu.org/git/diffutils.git diffutils-3.0
+diffutils/src/diff -pru diffutils-3.0 diffutils-3.0-patch >quote-3.0-test.txt
+
+
+15. diff quote-3.0-patch.txt quote-3.0-test.txt
+> --- diffutils-3.0/Makefile.am	2020-12-01 21:17:59.227629000 -0800
+> +++ diffutils-3.0-patch/Makefile.am	2020-12-01 21:17:56.741613000 -0800
+> @@ -1,7 +1,6 @@
+> -# Main Automakefile for GNU diffutils.
+> +# Automakefile for GNU diffutils programs.
+>  
+> -# Copyright (C) 2001-2002, 2004, 2006, 2009-2013, 2015-2020 Free Software
+> -# Foundation, Inc.
+> +# Copyright (C) 2001-2002, 2006, 2009-2010 Free Software Foundation, Inc.
+>  
+>  # This program is free software: you can redistribute it and/or modify
+>  # it under the terms of the GNU General Public License as published by
+> @@ -16,43 +15,41 @@
+>  # You should have received a copy of the GNU General Public License
+>  # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+>  
+> -ALL_RECURSIVE_TARGETS =
+> +bin_PROGRAMS = cmp diff diff3 sdiff
+>  
+> -EXTRA_DIST = bootstrap exgettext ChangeLog-2008 cfg.mk dist-check.mk
+> -SUBDIRS = lib src tests doc man po gnulib-tests
+> +noinst_HEADERS = system.h
+>  
+> -ACLOCAL_AMFLAGS = -I m4
+> +localedir = $(datadir)/locale
+> +
+> +AM_CPPFLAGS = -I../lib -I$(top_srcdir)/lib
+>  AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
+>  
+> -# Arrange so that .tarball-version appears only in the distribution
+> -# tarball, and never in a checked-out repository.
+> -dist-hook: gen-ChangeLog
+> -	$(AM_V_GEN)echo $(VERSION) > $(distdir)/.tarball-version
+> -
+> -gen_start_date = '2009-11-11 15:00'
+> -.PHONY: gen-ChangeLog
+> -gen-ChangeLog:
+> -	$(AM_V_GEN)if test -d .git; then				\
+> -	  $(top_srcdir)/build-aux/gitlog-to-changelog			\
+> -	    --since=$(gen_start_date) > $(distdir)/cl-t &&		\
+> -	    { rm -f $(distdir)/ChangeLog &&				\
+> -	      mv $(distdir)/cl-t $(distdir)/ChangeLog; }		\
+> -	fi
+> -
+> -ALL_RECURSIVE_TARGETS += distcheck-hook
+> -distcheck-hook:
+> -	$(MAKE) my-distcheck
+> -
+> -# Some of our git hook scripts are supposed to be identical to git's samples.
+> -# See if they are still in sync.
+> -.PHONY: check-git-hook-script-sync
+> -check-git-hook-script-sync:
+> -	@fail=0;							\
+> -	t=$$(mktemp -d)							\
+> -	  && cd $$t && git init -q && cd .git/hooks			\
+> -	  && for i in pre-commit pre-applypatch applypatch-msg; do	\
+> -	       diff -u $(abs_top_srcdir)/scripts/git-hooks/$$i $$i.sample	\
+> -		 || fail=1;						\
+> -	     done;							\
+> -	rm -rf $$t;							\
+> -	test $$fail = 0
+> +LDADD = \
+> +  ../lib/libdiffutils.a \
+> +  $(LIBCSTACK) \
+> +  $(LIBINTL) \
+> +  $(LIBICONV) \
+> +  $(LIBSIGSEGV) \
+> +  $(LIB_CLOCK_GETTIME)
+> +
+> +diff_LDADD = $(LDADD)
+> +cmp_LDADD = $(LDADD)
+> +sdiff_LDADD = $(LDADD)
+> +diff3_LDADD = $(LDADD)
+> +
+> +cmp_SOURCES = cmp.c
+> +diff3_SOURCES = diff3.c
+> +sdiff_SOURCES = sdiff.c
+> +diff_SOURCES = \
+> +  analyze.c context.c diff.c diff.h dir.c ed.c ifdef.c io.c \
+> +  normal.c side.c util.c
+> +
+> +MOSTLYCLEANFILES = paths.h paths.ht
+> +
+> +cmp.$(OBJEXT) diff3.$(OBJEXT) diff.$(OBJEXT) sdiff.$(OBJEXT): paths.h
+> +
+> +gdiff = `echo diff|sed '$(transform)'`
+> +BUILT_SOURCES = paths.h
+> +paths.h: Makefile.am
+> +	$(AM_V_GEN)(echo '#define DEFAULT_DIFF_PROGRAM "'$(gdiff)'"' && \
+> +	  echo '#define LOCALEDIR "$(localedir)"') >$@t && mv $@t $@
+> Only in diffutils-3.0-patch: Makefile.in
+> Only in diffutils-3.0: man
+> Only in diffutils-3.0: NEWS
+> Only in diffutils-3.0-patch: normal.c
+> Only in diffutils-3.0-patch: normal.o
+> Only in diffutils-3.0-patch: paths.h
+> Only in diffutils-3.0: po
+> Only in diffutils-3.0: .prev-version
+> Only in diffutils-3.0: README
+> Only in diffutils-3.0: README-hacking
+> Only in diffutils-3.0: scripts
+> Only in diffutils-3.0-patch: sdiff
+> Only in diffutils-3.0-patch: sdiff.c
+> Only in diffutils-3.0-patch: sdiff.o
+> Only in diffutils-3.0-patch: side.c
+> Only in diffutils-3.0-patch: side.o
+> Only in diffutils-3.0: src
+> Only in diffutils-3.0-patch: system.h
+> Only in diffutils-3.0: tests
+> Only in diffutils-3.0: THANKS
+> Only in diffutils-3.0: TODO
+> Only in diffutils-3.0-patch: util.c
+> Only in diffutils-3.0-patch: util.o
+
+The files are not identical, but the differences are innocuous because 
+there are no ' vs ` differences.
+
+
